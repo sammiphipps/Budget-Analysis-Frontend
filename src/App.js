@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import './App.css';
 
+import AnalysisHomePage from './components/AnalysisHomePage/AnalysisHomePage'
+
 class App extends Component {
   state = {
     categories: [],
@@ -28,7 +30,11 @@ class App extends Component {
           <h1>Budget Tracker</h1>
         </header>
         <main>
-
+          <AnalysisHomePage 
+            categories={this.state.categories}
+            budgets={this.state.budgets}
+            transactions={this.state.transactions}
+          />
         </main>
       </div>
     )    
