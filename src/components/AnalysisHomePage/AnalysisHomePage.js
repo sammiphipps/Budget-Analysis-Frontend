@@ -38,12 +38,16 @@ export default class AnalysisHomePage extends Component {
         const {categories, transactions} = this.props
         return (
             <div id="AnalysisHomePage">
-                <div id="lineGraph">Budget vs Spent for the year will go here</div>
-                <div id="pieChart">Pie Chart detailing how much categories were spent will go here.</div>
+                <div id="graphs">
+                    <div id="lineGraph">Budget vs Spent for the year will go here</div>
+                    <div id="pieChart">Pie Chart detailing how much was spent for each category for the month will go here.</div>
+                </div>
                 <div id="categorySpending">
                     {
-                        categories.map(category => {
-                            return <div key={category.id} id={`#${category.attributes.name}`}>
+                        categories.filter(category => {
+                            return category.relationships.transactions.data.length !== 0
+                        }).map(category => {
+                            return <div key={category.id} id={category.attributes.name}>
                                 <h3>{category.attributes.name}</h3>
                                 {this.showThreeLargestCategoryAmounts(transactions, category.id)}
                             </div>

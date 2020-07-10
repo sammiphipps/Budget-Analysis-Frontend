@@ -1,0 +1,21 @@
+#categorySpending { 
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-evenly;
+}
+
+#categorySpending > div {
+    width: fit-content;
+    border: 3px solid black;
+    padding: 5px;
+    /* background-color: lightcyan;     */
+    margin: 30px 0px; 
+}
+
+#categorySpending > div > h3 {
+    border-bottom: 1px solid black;
+}
+
+#categorySpending > div > table > tbody > tr > td:first-of-type {
+    padding-right: 30px; 
+}
