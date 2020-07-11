@@ -39,6 +39,13 @@ export default class AnalysisHomePage extends Component {
         </table>
     }
 
+    findCategoryBudgetAndTransactionTotalByMonth = (month) => {
+        const categoryTotalSpent = this.findCategoryTotalsForMonth(month)
+        const categoryBudgetTotal = this.findCategoryBudgetTotalForMonth(month)
+    }
+
+
+
     findCategoryTotalsForMonth = (month) => {
         const groupMonthTransationsByCategory = this.findTransactionsForMonthByCategory(month)
         const categoryTransactionTotals = Object.keys(groupMonthTransationsByCategory).map( category => {
@@ -56,9 +63,24 @@ export default class AnalysisHomePage extends Component {
         })
     }
 
+    findCategoryBudgetTotalForMonth = (month) => {
+        const groupMonthBudgetByCategory = this.findBudgetForMonthByCategory(month)
+        return Object.entries(groupMonthBudgetByCategory).map( category => {
+            const categoryHash = {}
+            categoryHash["category"] = category[0]
+            categoryHash["budgetTotal"] = this.parseAmount(category[1][0].attributes.amount)
+            return categoryHash
+        })
+    }
+
     findTransactionsForMonthByCategory = (month) => {        
         const monthTransactions = this.filterTransactionsByMonth(month)
         return this.groupByCategory(monthTransactions)
+    }
+
+    findBudgetForMonthByCategory = (month) => {
+        const monthBudgets = this.filterBudgetByMonth(month)
+        return this.groupByCategory(monthBudgets)
     }
 
     filterTransactionsByMonth = (month) => {
@@ -66,6 +88,18 @@ export default class AnalysisHomePage extends Component {
             const splitTransactionDate = transaction.attributes.date.split('-')
             const transactionDate = new Date(splitTransactionDate[0], splitTransactionDate[1] - 1, splitTransactionDate[2])
             return (transactionDate.getMonth() + 1) === month
+        })
+    }
+
+    filterBudgetByMonth = (month) => {
+        return this.props.budgets.filter(budget => {
+            const splitStartDate = budget.attributes.start_date.split('-')
+            const startDate = new Date(splitStartDate[0], splitStartDate[1] - 1, splitStartDate[2])
+            const startDateMonth = startDate.getMonth() + 1
+            const splitEndDate = budget.attributes.end_date.split('-')
+            const endDate = new Date(splitEndDate[0], splitEndDate[1] - 1, splitEndDate[2])
+            const endDateMonth = endDate.getMonth() + 1
+            return startDateMonth === month && endDateMonth === month
         })
     }
 
@@ -95,7 +129,7 @@ export default class AnalysisHomePage extends Component {
                         <p>Budget vs Spent for the year will go here</p>
                         {
                             transactions.length !== 0
-                                ? console.log(this.findCategoryTotalsForMonth(6))
+                                ? this.findCategoryBudgetAndTransactionTotalByMonth(6)
                                 : ''
                         }
                     </div>
