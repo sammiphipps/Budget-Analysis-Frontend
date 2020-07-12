@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import './AnalysisHomePage.css';
 
-import { RadialChart } from 'react-vis';
+import { PieChart, Pie } from 'recharts'
 
 export default class AnalysisHomePage extends Component {
 
@@ -48,8 +48,8 @@ export default class AnalysisHomePage extends Component {
         }, 0)
         return categoryTotalSpent.map(categoryObject => {
             const dataObject = {}
-            dataObject["angle"] = (categoryObject.totalAmountSpent / totalAmountSpent) * 100
-            dataObject["label"] = categoryObject.category
+            dataObject["totalAmountPercentage"] = (categoryObject.totalAmountSpent / totalAmountSpent) * 100
+            dataObject["category"] = categoryObject.category
             return dataObject
         })
         
@@ -148,17 +148,18 @@ export default class AnalysisHomePage extends Component {
                         } */}
                     </div>
                     <div id="pieChart">
-                        Pie Chart detailing how much was spent for each category for the month will go here.
                         {
                             transactions.length !== 0
-                                ? <RadialChart
-                                    data={this.pieChartData(6)}
-                                    showLabels
-                                    labelsAboveChildren
-                                    labelsRadiusMultiplier={1}
-                                    width={300}
-                                    height={300}
-                                />
+                                ? <PieChart width={400} height={400}>
+                                    <Pie 
+                                        data={this.pieChartData(6)} 
+                                        dataKey="totalAmountPercentage" 
+                                        nameKey="category" 
+                                        label={(entry) => entry.name} 
+                                        outerRadius="52%"
+                                        fill="#8884d8"
+                                    />
+                                </PieChart>
                                 : ''
                         }
                     </div>
