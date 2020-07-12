@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import './AnalysisHomePage.css';
 
+import { RadialChart } from 'react-vis';
+
 export default class AnalysisHomePage extends Component {
 
     parseAmount = (amount) => {
@@ -39,12 +41,24 @@ export default class AnalysisHomePage extends Component {
         </table>
     }
 
+    pieChartData = (month) => {
+        const categoryTotalSpent = this.findCategoryTotalsForMonth(month)
+        const totalAmountSpent = categoryTotalSpent.reduce((totalAmount, categoryObject) => {
+            return totalAmount += totalAmount + categoryObject.totalAmountSpent
+        }, 0)
+        return categoryTotalSpent.map(categoryObject => {
+            const dataObject = {}
+            dataObject["angle"] = (categoryObject.totalAmountSpent / totalAmountSpent) * 100
+            dataObject["label"] = categoryObject.category
+            return dataObject
+        })
+        
+    }
+
     findCategoryBudgetAndTransactionTotalByMonth = (month) => {
         const categoryTotalSpent = this.findCategoryTotalsForMonth(month)
         const categoryBudgetTotal = this.findCategoryBudgetTotalForMonth(month)
     }
-
-
 
     findCategoryTotalsForMonth = (month) => {
         const groupMonthTransationsByCategory = this.findTransactionsForMonthByCategory(month)
@@ -127,13 +141,27 @@ export default class AnalysisHomePage extends Component {
                 <div id="graphs">
                     <div id="lineGraph">
                         <p>Budget vs Spent for the year will go here</p>
-                        {
+                        {/* {
                             transactions.length !== 0
                                 ? this.findCategoryBudgetAndTransactionTotalByMonth(6)
                                 : ''
+                        } */}
+                    </div>
+                    <div id="pieChart">
+                        Pie Chart detailing how much was spent for each category for the month will go here.
+                        {
+                            transactions.length !== 0
+                                ? <RadialChart
+                                    data={this.pieChartData(6)}
+                                    showLabels
+                                    labelsAboveChildren
+                                    labelsRadiusMultiplier={1}
+                                    width={300}
+                                    height={300}
+                                />
+                                : ''
                         }
                     </div>
-                    <div id="pieChart">Pie Chart detailing how much was spent for each category for the month will go here.</div>
                 </div>
                 <div id="categorySpending">
                     {
