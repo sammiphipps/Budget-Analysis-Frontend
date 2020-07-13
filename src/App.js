@@ -1,14 +1,10 @@
 import React, {Component} from 'react';
 import './App.css';
+import { connect } from 'react-redux'
 
-import AnalysisHomePage from './components/AnalysisHomePage/AnalysisHomePage'
+// import AnalysisHomePage from './components/AnalysisHomePage/AnalysisHomePage'
 
 class App extends Component {
-  state = {
-    categories: [],
-    budgets: [],
-    transactions: []
-  }
 
   componentDidMount(){
     Promise.all([
@@ -16,11 +12,8 @@ class App extends Component {
       fetch('http://localhost:3000/budgets'),
       fetch('http://localhost:3000/transactions')
     ]).then(responses => Promise.all(responses.map(response => response.json())))
-    .then(finalVals => {
-      this.setState({categories: [...finalVals[0].data]})
-      this.setState({budgets: [...finalVals[1].data]})
-      this.setState({transactions: [...finalVals[2].data]})
-    }).catch(errors => console.log(errors))
+    .then(values => this.props.fetch(values))
+    .catch(errors => console.log(errors))
   }
 
   render(){
@@ -30,15 +23,25 @@ class App extends Component {
           <h1>Budget Tracker</h1>
         </header>
         <main>
-          <AnalysisHomePage 
-            categories={this.state.categories}
-            budgets={this.state.budgets}
-            transactions={this.state.transactions}
-          />
+          {/* <AnalysisHomePage />  */}
         </main>
       </div>
     )    
   }
 }
 
-export default App;
+const mapStateToProps = (state) => {
+  return {
+    categories: state.categories,
+    budgets: state.budgets,
+    transactions: state.transactions
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    fetch: (combinedFetchResult) => dispatch({ type: "FETCH", payload: combinedFetchResult})
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
