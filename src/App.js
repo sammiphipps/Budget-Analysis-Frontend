@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import './App.css';
 import { connect } from 'react-redux'
 
-// import AnalysisHomePage from './components/AnalysisHomePage/AnalysisHomePage'
+import AnalysisHomePage from './components/AnalysisHomePage/AnalysisHomePage'
 
 class App extends Component {
 
@@ -23,7 +23,7 @@ class App extends Component {
           <h1>Budget Tracker</h1>
         </header>
         <main>
-          {/* <AnalysisHomePage />  */}
+          <AnalysisHomePage /> 
         </main>
       </div>
     )    
