@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import './AnalysisHomePage.css';
-
+import { connect } from 'react-redux'
 import { PieChart, Pie } from 'recharts'
 
-export default class AnalysisHomePage extends Component {
+class AnalysisHomePage extends Component {
 
     parseAmount = (amount) => {
         return parseFloat(amount.replace(/(^\$|,)/g,''))
@@ -180,3 +180,12 @@ export default class AnalysisHomePage extends Component {
         )
     }
 }
+
+const mapStateToProps = (state) => {
+    return {
+        categories: state.categories,
+        transactions: state.transactions
+    }
+}
+
+export default connect(mapStateToProps, null)(AnalysisHomePage)
