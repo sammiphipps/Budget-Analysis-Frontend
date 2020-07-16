@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import './AnalysisHomePage.css';
 import { connect } from 'react-redux'
-import { PieChart, Pie } from 'recharts'
+import { PieChart, Pie, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts'
 import { parseAmount } from '../../helpers/utils'
-import { findCategoryTotalSpentForMonth, groupByCategory } from '../../helpers/category'
+import { findCategoryTotalSpentForMonth, groupByCategory} from '../../helpers/category'
 import { totalTransactionsForMonth, findTransactionsByYear, groupTransactionsByMonth} from '../../helpers/transaction'
 
 class AnalysisHomePage extends Component {
@@ -53,16 +53,14 @@ class AnalysisHomePage extends Component {
 
         const transactionTimelineData = Object.entries(categoryGroupedTransactionPerMonth).map(entry => {
             const timelineData = {}
-            timelineData["month"] = entry[0]
-            timelineData["categoryTransactionInfo"] = Object.entries(entry[1]).map(categoryTransactionEntry => {
-                const categoryTransactionData = {}
-                categoryTransactionData["category"] = categoryTransactionEntry[0]
-                categoryTransactionData["totalSpent"] = categoryTransactionEntry[1].reduce((totalAmount, categoryTransaction) => {
-                    totalAmount += parseAmount(categoryTransaction.attributes.amount)
-                    return totalAmount
-                }, 0)
 
-                return categoryTransactionData
+            timelineData["month"] = entry[0]
+
+            Object.entries(entry[1]).forEach(categoryTransactionEntry => {
+                const categoryTransactionTotal = categoryTransactionEntry[1].reduce((total, transaction) => {
+                    return total += parseAmount(transaction.attributes.amount)
+                }, 0)
+                timelineData[categoryTransactionEntry[0]] = categoryTransactionTotal
             })
 
             return timelineData
@@ -100,7 +98,25 @@ class AnalysisHomePage extends Component {
                         <p>Budget vs Spent for the year will go here</p>
                         {
                             transactions.length !== 0 && budgets.length !== 0
-                                ? console.log(this.timelineData(2020))
+                                ? <BarChart
+                                width={400}
+                                height={400}
+                                data={this.timelineData(2020)}
+                                margin={{
+                                  top: 20, right: 30, left: 20, bottom: 5,
+                                }}
+                              >
+                                <XAxis dataKey="month" />
+                                <YAxis />
+                                <Tooltip />
+                                <Legend />
+                                {
+
+                                        categories.map(category => {
+                                            return <Bar dataKey={category.attributes.name} stackId="a" />
+                                        })
+                                }
+                              </BarChart>
                                 : ''
                         }
                     </div>
