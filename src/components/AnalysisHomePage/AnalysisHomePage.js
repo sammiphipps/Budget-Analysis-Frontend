@@ -3,8 +3,8 @@ import './AnalysisHomePage.css';
 import { connect } from 'react-redux'
 import { PieChart, Pie } from 'recharts'
 import { parseAmount } from '../../helpers/utils'
-import { findCategoryTotalSpentForMonth } from '../../helpers/category'
-import { totalTransactionsForMonth } from '../../helpers/transaction'
+import { findCategoryTotalSpentForMonth, groupByCategory } from '../../helpers/category'
+import { totalTransactionsForMonth, findTransactionsByYear, groupTransactionsByMonth} from '../../helpers/transaction'
 
 class AnalysisHomePage extends Component {
 
@@ -41,6 +41,33 @@ class AnalysisHomePage extends Component {
         </table>
     }
 
+    timelineData = (year) => {
+        const yearTransactions = findTransactionsByYear(year)
+
+        const transactionPerMonth = groupTransactionsByMonth(yearTransactions)
+
+        const categoryGroupedTransactionPerMonth = Object.entries(transactionPerMonth).reduce((newTransactionHash, entry) => {
+            newTransactionHash[entry[0]] = groupByCategory(entry[1])
+            return newTransactionHash
+        }, {})
+
+        const transactionTimelineData = Object.entries(categoryGroupedTransactionPerMonth).map(entry => {
+            const timelineData = {}
+            timelineData["month"] = entry[0]
+            timelineData["categoryTransactionInfo"] = Object.entries(entry[1]).map(categoryTransactionEntry => {
+                const categoryTransactionData = {}
+                categoryTransactionData["category"] = categoryTransactionEntry[0]
+                categoryTransactionData["totalSpent"] = categoryTransactionEntry[1].reduce((totalAmount, categoryTransaction) => {
+                    totalAmount += parseAmount(categoryTransaction.attributes.amount)
+                    return totalAmount
+                }, 0)
+                return categoryTransactionData
+            })
+            return timelineData
+        })
+        return transactionTimelineData
+    }
+
     pieChartData = (month) => {
         const totalTransactions = totalTransactionsForMonth(month)
         const categoryTotalSpent = findCategoryTotalSpentForMonth(month)
@@ -53,12 +80,17 @@ class AnalysisHomePage extends Component {
     }
 
     render(){
-        const {categories, transactions} = this.props
+        const {categories, transactions, budgets} = this.props
         return (
             <div id="AnalysisHomePage">
                 <div id="graphs">
                     <div id="lineGraph">
                         <p>Budget vs Spent for the year will go here</p>
+                        {
+                            transactions.length !== 0 && budgets.length !== 0
+                                ? console.log(this.timelineData(2020))
+                                : ''
+                        }
                     </div>
                     <div id="pieChart">
                         {

@@ -41,3 +41,5 @@ export const findCategoryTotalSpentForMonth = (month) => {
 //     const groupBudgetsForMonthByCategory = findBudgetsForMonthByCategory(month)
 //     return findCategoryTotal(groupBudgetsForMonthByCategory)
 // }
+
+
