@@ -42,4 +42,14 @@ export const findCategoryTotalSpentForMonth = (month) => {
 //     return findCategoryTotal(groupBudgetsForMonthByCategory)
 // }
 
+export const findCategoryColorByName = (name) => {
+    const categories = store.getState().categories
+
+    const filteredCategory = categories.filter(category => {
+        return category.attributes.name.toLowerCase() === name.toLowerCase()
+    })
+
+    return filteredCategory[0].attributes.color
+}
+
 

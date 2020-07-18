@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import './AnalysisHomePage.css';
 import { connect } from 'react-redux'
-import { PieChart, Pie, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts'
-import { parseAmount } from '../../helpers/utils'
-import { findCategoryTotalSpentForMonth, groupByCategory} from '../../helpers/category'
+import { PieChart, Pie, ComposedChart, Bar, XAxis, YAxis, Tooltip, Legend, Cell} from 'recharts'
+import { parseAmount, sortByDate } from '../../helpers/utils'
+import { findCategoryTotalSpentForMonth, groupByCategory, findCategoryColorByName} from '../../helpers/category'
 import { totalTransactionsForMonth, findTransactionsByYear, groupTransactionsByMonth} from '../../helpers/transaction'
 
 class AnalysisHomePage extends Component {
@@ -66,14 +66,7 @@ class AnalysisHomePage extends Component {
             return timelineData
         })
 
-        const sortedTransactionTimelineData = transactionTimelineData.sort((a, b) => {
-            const shortMonthName = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
-            const splitADate = a.month.split(" ")
-            const splitBDate = b.month.split(" ")
-            const newADate = new Date(splitADate[1], shortMonthName.indexOf(splitADate[0].toLowerCase()), 1)
-            const newBDate = new Date(splitBDate[1], shortMonthName.indexOf(splitBDate[0].toLowerCase()), 1)
-            return newADate > newBDate ? 1 : -1
-        })
+        const sortedTransactionTimelineData = sortByDate(transactionTimelineData)
         
         return sortedTransactionTimelineData
     }
@@ -85,6 +78,7 @@ class AnalysisHomePage extends Component {
             const pieChartData = {}
             pieChartData["category"] = entry[0]
             pieChartData["totalAmountPercentage"] = (entry[1] / totalTransactions) * 100
+            pieChartData["color"] = findCategoryColorByName(entry[0])
             return pieChartData
         })
     }
@@ -95,10 +89,9 @@ class AnalysisHomePage extends Component {
             <div id="AnalysisHomePage">
                 <div id="graphs">
                     <div id="lineGraph">
-                        <p>Budget vs Spent for the year will go here</p>
                         {
                             transactions.length !== 0 && budgets.length !== 0
-                                ? <BarChart
+                                ? <ComposedChart
                                 width={400}
                                 height={400}
                                 data={this.timelineData(2020)}
@@ -108,15 +101,15 @@ class AnalysisHomePage extends Component {
                               >
                                 <XAxis dataKey="month" />
                                 <YAxis />
-                                <Tooltip />
+                                <Tooltip itemStyle={{color: 'black'}}/>
                                 <Legend />
                                 {
 
                                         categories.map(category => {
-                                            return <Bar dataKey={category.attributes.name} stackId="a" />
+                                            return <Bar key={category.id} dataKey={category.attributes.name} stackId="a" fill={category.attributes.color}/>
                                         })
                                 }
-                              </BarChart>
+                              </ComposedChart>
                                 : ''
                         }
                     </div>
@@ -131,7 +124,13 @@ class AnalysisHomePage extends Component {
                                         label={(entry) => entry.name} 
                                         outerRadius="52%"
                                         fill="#8884d8"
-                                    />
+                                    >
+                                        {
+                                            this.pieChartData(6).map(category => {
+                                                return <Cell fill={category.color} />
+                                            })
+                                        }
+                                    </Pie>                                    
                                 </PieChart>
                                 : ''
                         }
