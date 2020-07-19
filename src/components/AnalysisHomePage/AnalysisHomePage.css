@@ -19,3 +19,17 @@
 #categorySpending > div > table > tbody > tr > td:first-of-type {
     padding-right: 30px; 
 }
+
+#graphs {
+    display: flex;
+    flex-flow: row wrap; 
+    justify-content: space-evenly;
+}
+
+.recharts-pie-labels > .recharts-layer > text {
+    fill: black;
+}
+
+.recharts-pie-labels > .recharts-layer > path {
+    stroke: black;
+}

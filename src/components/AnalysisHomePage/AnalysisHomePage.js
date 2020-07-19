@@ -1,10 +1,10 @@
 import React, {Component} from 'react';
 import './AnalysisHomePage.css';
 import { connect } from 'react-redux'
-import { PieChart, Pie } from 'recharts'
-import { parseAmount } from '../../helpers/utils'
-import { findCategoryTotalSpentForMonth } from '../../helpers/category'
-import { totalTransactionsForMonth } from '../../helpers/transaction'
+import { PieChart, Pie, ComposedChart, Bar, XAxis, YAxis, Tooltip, Legend, Cell} from 'recharts'
+import { parseAmount, sortByDate } from '../../helpers/utils'
+import { findCategoryTotalSpentForMonth, groupByCategory, findCategoryColorByName} from '../../helpers/category'
+import { totalTransactionsForMonth, findTransactionsByYear, groupTransactionsByMonth} from '../../helpers/transaction'
 
 class AnalysisHomePage extends Component {
 
@@ -41,6 +41,36 @@ class AnalysisHomePage extends Component {
         </table>
     }
 
+    timelineData = (year) => {
+        const yearTransactions = findTransactionsByYear(year)
+
+        const transactionPerMonth = groupTransactionsByMonth(yearTransactions)
+
+        const categoryGroupedTransactionPerMonth = Object.entries(transactionPerMonth).reduce((newTransactionHash, entry) => {
+            newTransactionHash[entry[0]] = groupByCategory(entry[1])
+            return newTransactionHash
+        }, {})
+
+        const transactionTimelineData = Object.entries(categoryGroupedTransactionPerMonth).map(entry => {
+            const timelineData = {}
+
+            timelineData["month"] = entry[0]
+
+            Object.entries(entry[1]).forEach(categoryTransactionEntry => {
+                const categoryTransactionTotal = categoryTransactionEntry[1].reduce((total, transaction) => {
+                    return total += parseAmount(transaction.attributes.amount)
+                }, 0)
+                timelineData[categoryTransactionEntry[0]] = categoryTransactionTotal
+            })
+
+            return timelineData
+        })
+
+        const sortedTransactionTimelineData = sortByDate(transactionTimelineData)
+        
+        return sortedTransactionTimelineData
+    }
+
     pieChartData = (month) => {
         const totalTransactions = totalTransactionsForMonth(month)
         const categoryTotalSpent = findCategoryTotalSpentForMonth(month)
@@ -48,6 +78,7 @@ class AnalysisHomePage extends Component {
             const pieChartData = {}
             pieChartData["category"] = entry[0]
             pieChartData["totalAmountPercentage"] = (entry[1] / totalTransactions) * 100
+            pieChartData["color"] = findCategoryColorByName(entry[0])
             return pieChartData
         })
     }
@@ -55,11 +86,34 @@ class AnalysisHomePage extends Component {
     render(){
         const {categories, transactions, month} = this.props
         const previousMonth = month - 1
+        
         return (
             <div id="AnalysisHomePage">
                 <div id="graphs">
                     <div id="lineGraph">
-                        <p>Budget vs Spent for the year will go here</p>
+                        {
+                            transactions.length !== 0 && budgets.length !== 0
+                                ? <ComposedChart
+                                width={400}
+                                height={400}
+                                data={this.timelineData(2020)}
+                                margin={{
+                                  top: 20, right: 30, left: 20, bottom: 5,
+                                }}
+                              >
+                                <XAxis dataKey="month" />
+                                <YAxis />
+                                <Tooltip itemStyle={{color: 'black'}}/>
+                                <Legend />
+                                {
+
+                                        categories.map(category => {
+                                            return <Bar key={category.id} dataKey={category.attributes.name} stackId="a" fill={category.attributes.color}/>
+                                        })
+                                }
+                              </ComposedChart>
+                                : ''
+                        }
                     </div>
                     <div id="pieChart">
                         {
@@ -72,7 +126,13 @@ class AnalysisHomePage extends Component {
                                         label={(entry) => entry.name} 
                                         outerRadius="52%"
                                         fill="#8884d8"
-                                    />
+                                    >
+                                        {
+                                            this.pieChartData(6).map(category => {
+                                                return <Cell fill={category.color} />
+                                            })
+                                        }
+                                    </Pie>                                    
                                 </PieChart>
                                 : ''
                         }
