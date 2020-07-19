@@ -53,7 +53,8 @@ class AnalysisHomePage extends Component {
     }
 
     render(){
-        const {categories, transactions} = this.props
+        const {categories, transactions, month} = this.props
+        const previousMonth = month - 1
         return (
             <div id="AnalysisHomePage">
                 <div id="graphs">
@@ -65,7 +66,7 @@ class AnalysisHomePage extends Component {
                             transactions.length !== 0
                                 ? <PieChart width={400} height={400}>
                                     <Pie 
-                                        data={this.pieChartData(6)} 
+                                        data={this.pieChartData(previousMonth)} 
                                         dataKey="totalAmountPercentage" 
                                         nameKey="category" 
                                         label={(entry) => entry.name} 
@@ -98,7 +99,9 @@ const mapStateToProps = (state) => {
     return {
         categories: state.categories,
         transactions: state.transactions,
-        budgets: state.budgets
+        budgets: state.budgets,
+        month: state.month,
+        year: state.year
     }
 }
 
